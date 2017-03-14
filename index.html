@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Required meta tags always come first -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <title>Twitch API</title>
+    <style media="screen">
+    @media screen and (min-width: 480px){
+      div .alert-success{
+        border-radius: 5px;
+        padding: 5px;
+        margin: 0 auto;
+        margin-bottom: 10px;
+        width: 70%;
+      }
+      div .alert-success a{
+        text-decoration: none;
+        color: inherit;
+      }
+      div .alert-danger{
+        border-radius: 5px;
+        padding: 5px;
+        margin: 0 auto;
+        margin-bottom: 10px;
+        width: 70%;
+      }
+      div .alert-danger a{
+        text-decoration: none;
+        color: inherit;
+      }
+      .breadcrumb{
+        margin: 0 auto;
+        margin-bottom: 15px;
+        margin-top: 10px;
+        width: 50%;
+      }
+      .breadcrumb a{
+        text-decoration: none;
+      }
+    }
+    @media screen and (max-width: 480px){
+      div .alert-success{
+        border-radius: 5px;
+        padding: 5px;
+        margin: 0 auto;
+        margin-bottom: 10px;
+      }
+      div .alert-success a{
+        text-decoration: none;
+        color: inherit;
+      }
+      div .alert-danger a{
+        text-decoration: none;
+        color: inherit;
+      }
+      div .alert-danger{
+        border-radius: 5px;
+        padding: 5px;
+        margin: 0 auto;
+        margin-bottom: 10px;
+      }
+      .breadcrumb{
+        margin: 0 auto;
+        margin-bottom: 15px;
+        margin-top: 10px;
+        width: 75%;
+      }
+      .breadcrumb a{
+        text-decoration: none;
+      }
+    }
+
+    </style>
+  </head>
+  <body onload="getAll()">
+    <div class="container">
+      <ol class="breadcrumb text-center alert alert-info">
+        <li><a href="#" id="all">All</a></li>
+        <li><a href="#" id="online">Online</a></li>
+        <li><a href="#" id="offline">Offline</a></li>
+      </ol>
+      <div id="channel-list">
+
+      </div>
+    </div>
+    <script
+			  src="https://code.jquery.com/jquery-3.1.1.js"
+			  integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
+			  crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var channelList = document.getElementById('channel-list');
+      function getAll(){
+        while(channelList.firstChild){
+          channelList.removeChild(channelList.firstChild);
+        }
+        console.log('Run')
+        $.getJSON('https://wind-bow.gomix.me/twitch-api/streams/freecodecamp?callback=\?', function(data){
+            var channel = document.createElement('DIV');
+            var channelName = document.createElement('H3');
+            channelName.innerHTML = 'freecodecamp';
+
+            if(data.stream != null){
+              channel.appendChild(channelName);
+              channelName.innerHTML = data.title;
+              var channelDescription = document.createElement('P');
+              channelDescription.innerHTML = data.stream.channel.status;
+              var link = document.createElement('A');
+              link.href = data.stream.channel.url;
+              link.appendChild(channelDescription);
+              channel.appendChild(link);
+              channel.setAttribute('class', 'alert alert-success');
+
+            } else{
+              var link = document.createElement('A');
+              link.href = 'https://www.twitch.tv/freecodecamp';
+              link.target= '_blank';
+              link.appendChild(channelName);
+              channel.appendChild(link);
+              channel.setAttribute('class', 'alert alert-danger');
+            }
+            channelList.appendChild(channel);
+        });
+        $.getJSON('https://wind-bow.glitch.me/twitch-api/streams/featured?limit=5&offset=0', function(data){
+            var featured = data.featured;
+            for(i = 0; i < featured.length; i++){
+              addOnlineChannel(featured[i]);
+            }
+        });
+      }
+      function addOnlineChannel(chan){
+        var channel = document.createElement('DIV');
+        var channelName = document.createElement('H3');
+        channelName.innerHTML = chan.title;
+        channel.appendChild(channelName);
+
+        var channelDescription = document.createElement('P');
+        channelDescription.innerHTML = chan.text;
+        var link = document.createElement('A');
+        link.href = chan.stream.channel.url;
+        link.target ='_blank';
+        link.appendChild(channelDescription);
+        channel.appendChild(link);
+        channel.setAttribute('class', 'alert alert-success');
+        channelList.appendChild(channel);
+      }
+
+      function getOnline(){
+        while(channelList.firstChild){
+          channelList.removeChild(channelList.firstChild);
+        }
+        $.getJSON('https://wind-bow.gomix.me/twitch-api/streams/freecodecamp?callback=\?', function(data){
+          if(data.stream != null){
+            var channel = document.createElement('DIV');
+            var channelName = document.createElement('H3');
+            channelName.innerHTML = 'freecodecamp';
+            channel.appendChild(channelName);
+
+            channelName.innerHTML = data.title;
+            var channelDescription = document.createElement('P');
+            channelDescription.innerHTML = data.stream.channel.status;
+            channel.appendChild(channelDescription);
+            channel.setAttribute('class', 'alert alert-success');
+            channelList.appendChild(channel);
+        }
+
+        });
+        $.getJSON('https://wind-bow.glitch.me/twitch-api/streams/featured?limit=5&offset=0', function(data){
+            var featured = data.featured;
+            for(i = 0; i < featured.length; i++){
+              addOnlineChannel(featured[i]);
+            }
+        });
+      }
+      function getOffline(){
+        while(channelList.firstChild){
+          channelList.removeChild(channelList.firstChild);
+        }
+        $.getJSON('https://wind-bow.gomix.me/twitch-api/streams/freecodecamp?callback=\?', function(data){
+          if(data.stream == null){
+            var channel = document.createElement('DIV');
+            var channelName = document.createElement('H3');
+            channelName.innerHTML = 'freecodecamp';
+            var link = document.createElement('A');
+            link.href = 'https://www.twitch.tv/freecodecamp';
+            link.target= '_blank';
+            link.appendChild(channelName);
+            channel.appendChild(link);
+            channel.setAttribute('class', 'alert alert-danger');
+            channelList.appendChild(channel);
+        }
+
+        });
+      }
+      document.getElementById('all').addEventListener('click', getAll, false);
+      document.getElementById('online').addEventListener('click', getOnline, false);
+      document.getElementById('offline').addEventListener('click', getOffline, false);
+    </script>
+  </body>
+</html>
